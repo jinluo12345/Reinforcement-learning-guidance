@@ -26,21 +26,22 @@ Clone this repository and install packages.
 conda create -n rlg python=3.10.16
 pip install -e .
 ```
+### 2. Model Downloads
 
-### 2. Model Download
-To avoid redundant downloads and potential storage waste, please pre-download the required models in advance.
+Our reinfoecement-learning-guidance approach requires both the reference model and the RL-finetuned model to generate images, so please download them in advance.
 
-**Reference Models**
-* **SD3.5**: `stabilityai/stable-diffusion-3.5-medium`
+#### Base Model
 
-**Flow-GRPO Model**
-| Task    | Model |
-| -------- | -------- |
-| GenEval     | [🤗GenEval](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-GenEval) |
-| Text Rendering     | [🤗Text](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-Text) |
-| Human Preference Alignment     | [🤗PickScore](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-PickScore) |
+* **SD3.5**: Access at `stabilityai/stable-diffusion-3.5-medium`.
 
-**Reward Models**
+#### Flow-GRPO Models
+
+* **GenEval**: Available at [🤗GenEval](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-GenEval).
+* **Text Rendering**: Available at [🤗Text](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-Text).
+* **Human Preference Alignment**: Available at [🤗PickScore](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-PickScore).
+
+#### Eval Models
+
 * **PickScore**:
   * `laion/CLIP-ViT-H-14-laion2B-s32B-b79K`
   * `yuvalkirstain/PickScore_v1`
@@ -48,11 +49,34 @@ To avoid redundant downloads and potential storage waste, please pre-download th
 * **ImageReward Score**: `zai-org/ImageReward`
 
 
-### 3. Reward Preparation
-The steps above only install the current repository. Since each reward model may rely on different versions, combining them in one Conda environment can cause version conflicts. To avoid this, we adopt a remote server setup inspired by ddpo-pytorch. You only need to install the specific reward model you plan to use.
+### 3. Image Generation
+#### Running Inference with RLG
 
+To generate images using the Reinforcement Learning Guidance (RLG) framework with Flow-GRPO, use the following command:
+```python
+python /inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/scripts/generate.py \
+  --config="config/dgx.py:pickscore_sd3" \
+  --lora_path="model-pretrained/flow_grpo/models--jieliu--SD3.5M-FlowGRPO-PickScore/snapshots/10c56697459bbdbe54d5e375912f49a0bcfae773" \
+  --tuned_guidance_scale=2.4 \
+  --output_dir="logs/aes_generated_images/" \
+  --prompt_file="Flow-RLG/dataset/pickscore/test.txt"
+
+```
+### Parameter Descriptions
+
+* \--config: Defines the configuration file and specific setup for the model. The value "config/dgx.py\:pickscore\_sd3" refers to the pickscore\_sd3 configuration in the dgx.py file
+* \--lora\_path: Specifies the path to the LoRA (Low-Rank Adaptation) weights for the RL-fine-tuned model. 
+* \--tuned\_guidance\_scale: Adjusts the strength of RL-guided alignment during inference. Recommended range: 1.0 to 3.0, where higher values enhance alignment but may reduce diversity.
+* \--output\_dir: Directory where generated images are saved. For example, "logs/aes\_generated\_images/" specifies the output folder for storing results.
+* \--prompt\_file: Path to the text file containing prompts for image generation. 
+
+---
+
+### 4. Eval model Preparation
+The steps above only install the tools used to generate. Since each evaluation model may rely on different versions, combining them in one Conda environment can cause version conflicts. To avoid this, you only need to install the specific reward model you plan to use.
+<!-- 
 #### GenEval
-Please create a new Conda virtual environment and install the corresponding dependencies according to the instructions in [reward-server](https://github.com/yifan123/reward-server).
+Please create a new Conda virtual environment and install the corresponding dependencies according to the instructions in [reward-server](https://github.com/yifan123/reward-server). -->
 
 #### OCR
 Please install paddle-ocr:
@@ -77,28 +101,7 @@ pip install image-reward
 pip install git+https://github.com/openai/CLIP.git
 ```
 
-### 4. Image Generation
-#### Running Inference with RLG
 
-To generate images using the Reinforcement Learning Guidance (RLG) framework with Flow-GRPO, use the following command:
-```python
-python /inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/scripts/generate.py \
-  --config="config/dgx.py:pickscore_sd3" \
-  --lora_path="model-pretrained/flow_grpo/models--jieliu--SD3.5M-FlowGRPO-PickScore/snapshots/10c56697459bbdbe54d5e375912f49a0bcfae773" \
-  --tuned_guidance_scale=2.4 \
-  --output_dir="logs/aes_generated_images/" \
-  --prompt_file="Flow-RLG/dataset/pickscore/test.txt"
-
-```
-### Parameter Descriptions
-
-* \--config: Defines the configuration file and specific setup for the model. The value "config/dgx.py\:pickscore\_sd3" refers to the pickscore\_sd3 configuration in the dgx.py file
-* \--lora\_path: Specifies the path to the LoRA (Low-Rank Adaptation) weights for the RL-fine-tuned model. 
-* \--tuned\_guidance\_scale: Adjusts the strength of RL-guided alignment during inference. Recommended range: 1.0 to 3.0, where higher values enhance alignment but may reduce diversity.
-* \--output\_dir: Directory where generated images are saved. For example, "logs/aes\_generated\_images/" specifies the output folder for storing results.
-* \--prompt\_file: Path to the text file containing prompts for image generation. 
-
----
 
 ## 🤗 Acknowledgement
 This repo is based on [Flow-GRPO](https://github.com/yifan123/flow_grpo). We thank the authors for their valuable contributions to the AIGC community. Special thanks to Kevin Black for the excellent *ddpo-pytorch* repo.

@@ -138,7 +138,7 @@ score_dict = {
 ```
 
 ## 🤗 Acknowledgement
-This repo is based on [Flow-GRPO](https://github.com/yifan123/flow_grpo). We thank the authors for their valuable contributions to the AIGC community. Special thanks to Kevin Black for the excellent *ddpo-pytorch* repo.
+This repo is based on [Flow-GRPO](https://github.com/yifan123/flow_grpo). We thank the authors for their valuable contributions to the AIGC community. Special thanks to Liu Jie for the excellent *flow_grpo* repo.
 
 ## ⭐Citation
 If you find RLG useful for your research or projects, we would greatly appreciate it if you could cite the following paper:
@@ -151,15 +151,5 @@ If you find RLG useful for your research or projects, we would greatly appreciat
       archivePrefix={arXiv},
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2508.21016}, 
-}
-```
-If you find Flow-DPO useful for your research or projects, we would greatly appreciate it if you could cite the following paper, which we thanks for their execellent work and we derived our github repositories from it.
-
-```
-@article{liu2025flow,
-  title={Flow-grpo: Training flow matching models via online rl},
-  author={Liu, Jie and Liu, Gongye and Liang, Jiajun and Li, Yangguang and Liu, Jiaheng and Wang, Xintao and Wan, Pengfei and Zhang, Di and Ouyang, Wanli},
-  journal={arXiv preprint arXiv:2505.05470},
-  year={2025}
 }
 ```

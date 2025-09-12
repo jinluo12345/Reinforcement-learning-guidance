@@ -113,7 +113,7 @@ def pickscore_sd3():
     config.dataset = os.path.join(os.getcwd(), "dataset/pickscore")
 
     # sd3.5 medium
-    config.pretrained.model = "/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/model-pretrained/flow_grpo/AI-ModelScope/stable-diffusion-3___5-medium"
+    config.pretrained.model = "AI-ModelScope/stable-diffusion-3___5-medium"
     config.sample.num_steps = 5 # 40
     config.sample.eval_num_steps = 40
     config.sample.guidance_scale=4.5

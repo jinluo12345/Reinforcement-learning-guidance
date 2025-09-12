@@ -16,9 +16,9 @@ class OcrScorer:
             lang="en",
             use_gpu=use_gpu,
             show_log=False,  # Disable unnecessary log output
-            det_model_dir="/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/model-pretrained/ocr/det/",   
-            rec_model_dir="/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/model-pretrained/ocr/rec/",  
-            cls_model_dir='/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/model-pretrained/ocr/cls',
+            det_model_dir="ocr/det/",   
+            rec_model_dir="ocr/rec/",  
+            cls_model_dir='ocr/cls',
         )
 
     @torch.no_grad()

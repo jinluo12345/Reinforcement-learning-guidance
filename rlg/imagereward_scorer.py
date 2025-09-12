@@ -6,10 +6,10 @@ import ImageReward as RM
 class ImageRewardScorer(torch.nn.Module):
     def __init__(self, device="cuda", dtype=torch.float32):
         super().__init__()
-        self.model_path = "/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/DiffusionDPO/hf_models/ImageReward/ImageReward.pt"
+        self.model_path = "ImageReward-v1.0"
         self.device = device
         self.dtype = dtype
-        self.model = RM.load(self.model_path, device=device, med_config='/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/DiffusionDPO/hf_models/ImageReward/med_config.json').eval().to(dtype=dtype)
+        self.model = RM.load(self.model_path, device=device).eval().to(dtype=dtype)
         self.model.requires_grad_(False)
         
     @torch.no_grad()
@@ -25,7 +25,7 @@ def main():
     )
 
     images=[
-    "/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/logs/aes_generated_images/scale_1.2/02047.png",
+    "02047.png",
     ]
     pil_images = [Image.open(img) for img in images]
     prompts=[

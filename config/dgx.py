@@ -7,7 +7,7 @@ base = imp.load_source("base", os.path.join(os.path.dirname(__file__), "base.py"
 def compressibility():
     config = base.get_config()
 
-    config.pretrained.model = "/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/model-pretrained/flow_grpo/AI-ModelScope/stable-diffusion-3___5-medium"
+    config.pretrained.model = "AI-ModelScope/stable-diffusion-3___5-medium"
     config.dataset = os.path.join(os.getcwd(), "dataset/pickscore")
 
     config.num_epochs = 100
@@ -32,7 +32,7 @@ def general_ocr_sd3():
     config.dataset = os.path.join(os.getcwd(), "dataset/ocr")
 
     # sd3.5 medium
-    config.pretrained.model = "/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/model-pretrained/flow_grpo/AI-ModelScope/stable-diffusion-3___5-medium"
+    config.pretrained.model = "AI-ModelScope/stable-diffusion-3___5-medium"
     config.sample.num_steps = 10
     config.sample.eval_num_steps = 40
     config.sample.guidance_scale=4.5
@@ -73,7 +73,7 @@ def geneval_sd3():
     config.dataset = os.path.join(os.getcwd(), "dataset/geneval")
 
     # sd3.5 medium
-    config.pretrained.model = "/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/model-pretrained/flow_grpo/AI-ModelScope/stable-diffusion-3___5-medium"
+    config.pretrained.model = "AI-ModelScope/stable-diffusion-3___5-medium"
     config.sample.num_steps = 10 # 40
     config.sample.eval_num_steps = 40
     config.sample.guidance_scale=4.5

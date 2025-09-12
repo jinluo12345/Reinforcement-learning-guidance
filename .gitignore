@@ -53,3 +53,4 @@ flow_grpo/diffusers_patch/sd3_sde_with_logprob_reward_scale_batch.py
 flow_grpo/diffusers_patch/sd3_sde_with_logprob_reward_sigmoid_rescale.py
 flow_grpo/diffusers_patch/sd3_pipeline_with_logprob_dual.py
 flow_grpo/diffusers_patch/sd3_pipeline_with_logprob_dual.py
+rlg.egg-info

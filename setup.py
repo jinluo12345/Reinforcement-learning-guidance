@@ -29,7 +29,7 @@ setup(
         "requests==2.32.3",
         "matplotlib==3.10.0",
         
-        "flash-attn==2.7.4.post1",
+        # "flash-attn==2.7.4.post1",
         "deepspeed==0.16.4",  
         "peft==0.10.0",       
         "bitsandbytes==0.45.3",
@@ -48,6 +48,7 @@ setup(
         "absl-py",
         "ml_collections",
         "sentencepiece",
+        "openai",
     ],
     extras_require={
         "dev": [

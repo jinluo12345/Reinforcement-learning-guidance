@@ -8,7 +8,7 @@
 </div> -->
 
 ## Overview
-This repository is an implementation of Reinforcement Learning Guidance (RLG), a novel inference-time method for enhancing and controlling the alignment of diffusion models. RLG adapts Classifier-Free Guidance (CFG) by combining the outputs of a base model and an RL-fine-tuned model using a geometric average, enabling dynamic control over alignment strength without additional training. Our work is built upon the [Flow-GRPO repository](https://github.com/yifan123/flow_grpo), extending its capabilities to support flexible alignment control for various downstream tasks, such as human preference alignment, compositional generation, text rendering
+This repository is an implementation of Reinforcement Learning Guidance (RLG), a novel inference-time method for enhancing and controlling the alignment of diffusion models. RLG adapts Classifier-Free Guidance (CFG) by combining the outputs of a base model and an RL-fine-tuned model using a geometric average, enabling dynamic control over alignment strength without additional training. Our work is built upon the [Flow-GRPO repository](https://github.com/yifan123/flow_grpo), extending its capabilities to support flexible alignment control for various downstream tasks, such as human preference alignment, compositional generation, text rendering.
 
 
 <!-- ## 🤗 Model

@@ -14,8 +14,8 @@ from peft import PeftModel
 from torch.utils.data import Dataset, DataLoader
 
 # Import the necessary functions from your project
-from flow_grpo.diffusers_patch.sd3_pipeline_with_logprob_dual import pipeline_with_logprob
-from flow_grpo.diffusers_patch.train_dreambooth_lora_sd3 import encode_prompt
+from rlg.diffusers_patch.sd3_pipeline_with_rlg import pipeline_with_logprob
+from rlg.diffusers_patch.train_dreambooth_lora_sd3 import encode_prompt
 
 # Setup logging and progress bars
 tqdm = partial(tqdm, dynamic_ncols=True)

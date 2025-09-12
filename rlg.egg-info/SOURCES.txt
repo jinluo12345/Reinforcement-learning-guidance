@@ -1,0 +1,15 @@
+README.md
+setup.py
+rlg/__init__.py
+rlg/aesthetic_scorer.py
+rlg/imagereward_scorer.py
+rlg/ocr.py
+rlg/pickscore_scorer.py
+rlg/prompts.py
+rlg/rewards.py
+rlg/stat_tracking.py
+rlg.egg-info/PKG-INFO
+rlg.egg-info/SOURCES.txt
+rlg.egg-info/dependency_links.txt
+rlg.egg-info/requires.txt
+rlg.egg-info/top_level.txt

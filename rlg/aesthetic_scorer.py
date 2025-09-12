@@ -7,7 +7,7 @@ import numpy as np
 from transformers import CLIPModel, CLIPProcessor
 from PIL import Image
 
-ASSETS_PATH = resources.files("flow_grpo.assets")
+ASSETS_PATH = resources.files("rlg.assets")
 
 
 class MLP(nn.Module):

@@ -1,14 +1,15 @@
 <h1 align="center"> RLG:<br>Inference-Time Alignment Control for Diffusion Models with Reinforcement Learning Guidance </h1>
-<!-- <div align="center">
-  <a href='https://arxiv.org/abs/2505.05470'><img src='https://img.shields.io/badge/ArXiv-red?logo=arxiv'></a>  &nbsp;
-  <a href='https://gongyeliu.github.io/Flow-GRPO/'><img src='https://img.shields.io/badge/Visualization-green?logo=github'></a> &nbsp;
-  <a href="https://github.com/yifan123/flow_grpo"><img src="https://img.shields.io/badge/Code-9E95B7?logo=github"></a> &nbsp; 
-  <a href='https://huggingface.co/collections/jieliu/sd35m-flowgrpo-68298ec27a27af64b0654120'><img src='https://img.shields.io/badge/Model-blue?logo=huggingface'></a> &nbsp; 
-  <a href='https://huggingface.co/spaces/jieliu/SD3.5-M-Flow-GRPO'><img src='https://img.shields.io/badge/Demo-blue?logo=huggingface'></a> &nbsp;
-</div> -->
+<div align="center">
+  <a href='https://arxiv.org/abs/2508.21016'><img src='https://img.shields.io/badge/ArXiv-red?logo=arxiv'></a>  &nbsp;
+  <!-- <a href='https://gongyeliu.github.io/Flow-GRPO/'><img src='https://img.shields.io/badge/Visualization-green?logo=github'></a> &nbsp; -->
+  <a href="https://github.com/jinluo12345/Reinforcement-learning-guidance"><img src="https://img.shields.io/badge/Code-9E95B7?logo=github"></a> &nbsp; 
+  <!-- <a href='https://huggingface.co/collections/jieliu/sd35m-flowgrpo-68298ec27a27af64b0654120'><img src='https://img.shields.io/badge/Model-blue?logo=huggingface'></a> &nbsp; 
+  <a href='https://huggingface.co/spaces/jieliu/SD3.5-M-Flow-GRPO'><img src='https://img.shields.io/badge/Demo-blue?logo=huggingface'></a> &nbsp; -->
+</div>
 
-## Overview
-This repository is an implementation of Reinforcement Learning Guidance (RLG), a novel inference-time method for enhancing and controlling the alignment of diffusion models. RLG adapts Classifier-Free Guidance (CFG) by combining the outputs of a base model and an RL-fine-tuned model using a geometric average, enabling dynamic control over alignment strength without additional training. Our work is built upon the [Flow-GRPO repository](https://github.com/yifan123/flow_grpo), extending its capabilities to support flexible alignment control for various downstream tasks, such as human preference alignment, compositional generation, text rendering.
+## ✨ Overview
+
+This repository presents **Reinforcement Learning Guidance (RLG)**, an innovative inference-time method designed to enhance and control the alignment of diffusion models. RLG builds upon the widely used Classifier-Free Guidance (CFG) by introducing a novel approach: it harmonizes the outputs of a base diffusion model and an RL-fine-tuned model through a geometric average. This unique combination empowers users with dynamic and precise control over alignment strength *without requiring any additional training*.
 
 
 <!-- ## 🤗 Model
@@ -19,95 +20,141 @@ This repository is an implementation of Reinforcement Learning Guidance (RLG), a
 | Human Preference Alignment     | [🤗PickScore](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-PickScore) | -->
 
 
-## 🚀 Quick Started
-### 1. Environment Set Up
-Clone this repository and install packages.
+## 🚀 Quick Start Guide
+
+Let's get RLG up and running! Follow these simple steps to set up your environment and generate stunning images.
+
+### 1. 🌐 Environment Setup
+
+Begin by cloning the repository and installing the necessary packages.
+
 ```bash
-conda create -n rlg python=3.10.16
+git clone https://github.com/jinluo12345/Reinforcement-learning-guidance.git
+cd Reinforcement-learning-guidance
+conda create -n rlg python=3.10.16 -y
+conda activate rlg # Activate your new environment
 pip install -e .
 ```
-### 2. Model Downloads
 
-Our reinfoecement-learning-guidance approach requires both the reference model and the RL-finetuned model to generate images, so please download them in advance.
+### 2. ⬇️ Model Downloads
+
+RLG requires both a reference base model and an RL-fine-tuned model to operate. Please download them in advance.
 
 #### Base Model
 
-* **SD3.5**: Access at `stabilityai/stable-diffusion-3.5-medium`.
+RLG currently primarily supports `stable-diffusion-3.5` as its base model.
 
-#### Flow-GRPO Models
+* **SD3.5**: Accessible via `stabilityai/stable-diffusion-3.5-medium`.
 
-* **GenEval**: Available at [🤗GenEval](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-GenEval).
-* **Text Rendering**: Available at [🤗Text](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-Text).
-* **Human Preference Alignment**: Available at [🤗PickScore](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-PickScore).
+#### RL-fine-tuned Model
 
-#### Eval Models
+RLG currently supports models fine-tuned with Flow-GRPO.
+
+* **PickScore Alignment**: Download from [🤗PickScore](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-PickScore).
+* **Text Rendering**: Download from [🤗Text](https://huggingface.co/jieliu/SD3.5M-FlowGRPO-Text).
+
+#### Evaluation Models
+
+For comprehensive evaluation, you might need these models:
 
 * **PickScore**:
+
   * `laion/CLIP-ViT-H-14-laion2B-s32B-b79K`
   * `yuvalkirstain/PickScore_v1`
 * **Aesthetic Score**: `openai/clip-vit-large-patch14`
 * **ImageReward Score**: `zai-org/ImageReward`
 
+### 3. 🖼️ Image Generation
 
-### 3. Image Generation
+Unleash the power of RLG to generate images!
+
 #### Running Inference with RLG
 
-To generate images using the Reinforcement Learning Guidance (RLG) framework with Flow-GRPO, use the following command:
+To generate images using the Reinforcement Learning Guidance (RLG) framework, use the following command:
+
 ```python
-python /inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/scripts/generate.py \
+python scripts/generate.py \
   --config="config/dgx.py:pickscore_sd3" \
-  --lora_path="model-pretrained/flow_grpo/models--jieliu--SD3.5M-FlowGRPO-PickScore/snapshots/10c56697459bbdbe54d5e375912f49a0bcfae773" \
-  --tuned_guidance_scale=2.4 \
-  --output_dir="logs/aes_generated_images/" \
-  --prompt_file="Flow-RLG/dataset/pickscore/test.txt"
-
+  --lora_path="{your downloaded RL-finetuned model's ckpt path}" \
+  --tuned_guidance_scale=1.6 \
+  --output_dir="logs/" \
+  --prompt_file="dataset/pickscore/test.txt"
 ```
-### Parameter Descriptions
 
-* \--config: Defines the configuration file and specific setup for the model. The value "config/dgx.py\:pickscore\_sd3" refers to the pickscore\_sd3 configuration in the dgx.py file
-* \--lora\_path: Specifies the path to the LoRA (Low-Rank Adaptation) weights for the RL-fine-tuned model. 
-* \--tuned\_guidance\_scale: Adjusts the strength of RL-guided alignment during inference. Recommended range: 1.0 to 3.0, where higher values enhance alignment but may reduce diversity.
-* \--output\_dir: Directory where generated images are saved. For example, "logs/aes\_generated\_images/" specifies the output folder for storing results.
-* \--prompt\_file: Path to the text file containing prompts for image generation. 
+**Note:** If you wish to generate images using the *original base model* or the *RL-fine-tuned model without RLG*, simply set `tuned_guidance_scale` accordingly:
+
+* Set `tuned_guidance_scale` to `0.0` for the original base model.
+* Set `tuned_guidance_scale` to `1.0` for the original RL-fine-tuned model (sampling without RLG).
+
+#### Parameter Descriptions
+
+* `--config`: Specifies the configuration file and model setup (e.g., `config/dgx.py:pickscore_sd3` refers to the `pickscore_sd3` configuration in `dgx.py`, fine-tuned on PickScore reward).
+* `--lora_path`: The file path to the LoRA (Low-Rank Adaptation) weights of your downloaded RL-fine-tuned model.
+* `--tuned_guidance_scale`: Adjusts the strength of RL-guided alignment during inference.
+
+  * **Recommended range**: `1.0` to `3.0`.
+  * Higher values enhance alignment but might reduce image diversity.
+* `--output_dir`: The directory where all your magnificent generated images will be saved.
+* `--prompt_file`: Path to a text file containing the prompts for image generation.
 
 ---
 
-### 4. Eval model Preparation
-The steps above only install the tools used to generate. Since each evaluation model may rely on different versions, combining them in one Conda environment can cause version conflicts. To avoid this, you only need to install the specific reward model you plan to use.
-<!-- 
-#### GenEval
-Please create a new Conda virtual environment and install the corresponding dependencies according to the instructions in [reward-server](https://github.com/yifan123/reward-server). -->
+### 4. 📈 Evaluation Model Preparation
 
-#### OCR
-Please install paddle-ocr:
-```bash
-pip install paddlepaddle-gpu==2.6.2
-pip install paddleocr==2.9.1
-pip install python-Levenshtein
-```
-Then, pre-download the model using the Python command line:
-```python
-from paddleocr import PaddleOCR
-ocr = PaddleOCR(use_angle_cls=False, lang="en", use_gpu=False, show_log=False)
-```
+The above steps install tools for generation. Evaluation models, however, may have specific dependency versions that could conflict if installed in a single environment. To prevent this, install only the specific reward models you intend to use.
 
-#### Pickscore
-PickScore requires no additional installation.
+#### PickScore
+
+PickScore requires no additional installation steps. It's ready to go!
 
 #### ImageReward
-Please install imagereward:
+
+To use ImageReward, install it along with the CLIP library:
+
 ```bash
 pip install image-reward
 pip install git+https://github.com/openai/CLIP.git
 ```
 
+#### Running Evaluations
 
+We provide scripts to evaluate Aesthetic Score, PickScore, and ImageReward. To run evaluations, use the following command:
+
+```bash
+python scripts/cal_aes.py --input_dir logs/ --batch_size 1
+```
+
+This script will by default evaluate all supported rewards and save the results into a CSV file within your input directories.
+
+**Customizing Evaluation:** If you wish to evaluate only specific scores (e.g., just PickScore), you can modify the `score_dict` within `cal_aes.py` by setting other scores to `0.0`:
+
+```python
+# Example to evaluate only PickScore
+score_dict = {
+    "aesthetic": 0.0,
+    "imagereward": 0.0,
+    "pickscore": 1.0, # Enable PickScore evaluation
+}
+```
 
 ## 🤗 Acknowledgement
 This repo is based on [Flow-GRPO](https://github.com/yifan123/flow_grpo). We thank the authors for their valuable contributions to the AIGC community. Special thanks to Kevin Black for the excellent *ddpo-pytorch* repo.
 
-<!-- ## ⭐Citation
-If you find Flow-GRPO useful for your research or projects, we would greatly appreciate it if you could cite the following paper:
+## ⭐Citation
+If you find RLG useful for your research or projects, we would greatly appreciate it if you could cite the following paper:
+```
+@misc{jin2025inferencetimealignmentcontroldiffusion,
+      title={Inference-Time Alignment Control for Diffusion Models with Reinforcement Learning Guidance}, 
+      author={Luozhijie Jin and Zijie Qiu and Jie Liu and Zijie Diao and Lifeng Qiao and Ning Ding and Alex Lamb and Xipeng Qiu},
+      year={2025},
+      eprint={2508.21016},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2508.21016}, 
+}
+```
+If you find Flow-DPO useful for your research or projects, we would greatly appreciate it if you could cite the following paper, which we thanks for their execellent work and we derived our github repositories from it.
+
 ```
 @article{liu2025flow,
   title={Flow-grpo: Training flow matching models via online rl},
@@ -116,12 +163,3 @@ If you find Flow-GRPO useful for your research or projects, we would greatly app
   year={2025}
 }
 ```
-If you find Flow-DPO useful for your research or projects, we would greatly appreciate it if you could cite the following paper:
-```
-@article{liu2025improving,
-  title={Improving video generation with human feedback},
-  author={Liu, Jie and Liu, Gongye and Liang, Jiajun and Yuan, Ziyang and Liu, Xiaokun and Zheng, Mingwu and Wu, Xiele and Wang, Qiulin and Qin, Wenyu and Xia, Menghan and others},
-  journal={arXiv preprint arXiv:2501.13918},
-  year={2025}
-}
-``` -->

@@ -8,18 +8,8 @@ import torchvision.transforms as transforms
 from collections import defaultdict
 from tqdm import tqdm
 
-# --- Environment and Cache Configuration ---
-CACHE_DIR = "model-pretrained"
-# os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
-os.environ['HF_HOME'] = CACHE_DIR
-os.environ['HUGGINGFACE_HUB_CACHE'] = CACHE_DIR
-os.environ['TORCH_HOME'] = CACHE_DIR
-
-# ====================================================================================
-#  Scorer Definitions
-# ====================================================================================
 def aesthetic_score():
-    from flow_grpo.aesthetic_scorer import AestheticScorer
+    from rlg.aesthetic_scorer import AestheticScorer
     scorer = AestheticScorer(dtype=torch.float32).cuda()
     def _fn(images, prompts, metadata):
         if isinstance(images, torch.Tensor):
@@ -32,7 +22,7 @@ def aesthetic_score():
     return _fn
 
 def pickscore_score(device):
-    from flow_grpo.pickscore_scorer import PickScoreScorer
+    from rlg.pickscore_scorer import PickScoreScorer
     scorer = PickScoreScorer(dtype=torch.float32, device=device)
     def _fn(images, prompts, metadata):
         if isinstance(images, torch.Tensor):
@@ -44,23 +34,17 @@ def pickscore_score(device):
     return _fn
 
 def imagereward_score(device):
-    """
-    Loads the original ImageRewardScorer but modifies the input logic.
-    """
-    from flow_grpo.imagereward_scorer import ImageRewardScorer
+    from rlg.imagereward_scorer import ImageRewardScorer
     scorer = ImageRewardScorer(dtype=torch.float32, device=device)
-
     def _fn(images, prompts, metadata):
         image_paths = metadata.get('paths')
         if not image_paths:
             raise ValueError("ImageReward scorer requires 'paths' in metadata but none were found.")
-
         pil_images = [Image.open(p).convert('RGB') for p in image_paths]
         scores = scorer(prompts, pil_images)
         if not isinstance(scores,list):
             scores=[scores]
         return scores, {}
-        
     return _fn
 
 def multi_score(device, score_dict):
@@ -83,19 +67,15 @@ def multi_score(device, score_dict):
         return score_details, {}
     return _fn
 
-# ====================================================================================
-#  Main Evaluation Logic
-# ====================================================================================
-
-def evaluate_directory(directory_path, scoring_fn, batch_size=16):
+def evaluate_images_in_directory(directory_path, scoring_fn, batch_size=1):
     """
-    Evaluates images in a single folder and returns the mean of all scores.
+    评估单个文件夹中的所有图像，并为每张图片返回一个详细的分数记录。
     """
-    print(f"\n--- Processing directory: {directory_path} ---")
+    print(f"\n--- 正在处理目录: {directory_path} ---")
     
     metadata_path = os.path.join(directory_path, 'metadata.csv')
     if not os.path.exists(metadata_path):
-        print(f"Warning: metadata.csv not found in {directory_path}. Skipping.")
+        print(f"错误: 在 {directory_path} 中找不到 metadata.csv。")
         return None
 
     metadata_rows = []
@@ -105,13 +85,13 @@ def evaluate_directory(directory_path, scoring_fn, batch_size=16):
             metadata_rows.append(row)
 
     if not metadata_rows:
-        print(f"Warning: metadata.csv in {directory_path} is empty. Skipping.")
+        print(f"警告: {directory_path} 中的 metadata.csv 为空。正在跳过。")
         return None
 
     transform = transforms.Compose([transforms.ToTensor()])
-    all_scores = defaultdict(list)
+    all_results = []
     
-    for i in tqdm(range(0, len(metadata_rows), batch_size), desc="Evaluating batches"):
+    for i in tqdm(range(0, len(metadata_rows), batch_size), desc="正在评估批次"):
         batch_data = metadata_rows[i:i+batch_size]
         image_paths_batch = [os.path.join(directory_path, row['image_path']) for row in batch_data]
         prompts_batch = [row['prompt'] for row in batch_data]
@@ -120,35 +100,39 @@ def evaluate_directory(directory_path, scoring_fn, batch_size=16):
             images_tensors = [transform(Image.open(p).convert('RGB')) for p in image_paths_batch]
             images_batch_tensor = torch.stack(images_tensors)
         except FileNotFoundError as e:
-            print(f"Error: Image not found - {e}. Skipping batch.")
+            print(f"错误: 找不到图片 - {e}。正在跳过此批次。")
             continue
         
-        scores, _ = scoring_fn(images_batch_tensor, prompts_batch, metadata={'paths': image_paths_batch})
+        scores_dict, _ = scoring_fn(images_batch_tensor, prompts_batch, metadata={'paths': image_paths_batch})
         
-        for score_name, score_values in scores.items():
-            all_scores[score_name].extend([s.item() if hasattr(s, 'item') else s for s in score_values])
+        for j in range(len(batch_data)):
+            result_row = {
+                'image_path': batch_data[j]['image_path'],
+                'prompt': batch_data[j]['prompt']
+            }
+            for score_name, score_values in scores_dict.items():
+                score = score_values[j]
+                result_row[f'{score_name}_score'] = score.item() if hasattr(score, 'item') else score
+            
+            all_results.append(result_row)
 
-    if not all_scores:
-        print("Warning: No scores were calculated. Skipping.")
+    if not all_results:
+        print("警告: 没有计算出任何分数。")
         return None
 
-    mean_scores = {f"mean_{name}": np.mean(values) for name, values in all_scores.items()}
+    print(f"--- 目录 {os.path.basename(directory_path)} 处理完成，共评估 {len(all_results)} 张图片 ---")
     
-    print(f"--- Directory Summary: {os.path.basename(directory_path)} ---")
-    for name, mean_val in mean_scores.items():
-        print(f"{name}: {mean_val:.4f}")
-    
-    return mean_scores
+    return all_results
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate generated images and save mean scores.")
-    parser.add_argument("--base_dir", type=str, default='/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/logs-exp-new/aes_generated_images_reward_scale_1.5_0.5_fix_reward', help="The base directory containing scale_* subfolders.")
-    parser.add_argument("--batch_size", type=int, default=1, help="Batch size for evaluation.")
+    parser = argparse.ArgumentParser(description="为目录中的每张图片进行评估，并将详细分数保存到CSV文件中。")
+    parser.add_argument("--input_dir", type=str, default='/inspire/hdd/project/embodied-multimodality/public/lzjjin/Flow-RLG/logs/aes_generated_images/scale_0.0', help="包含图片和 'metadata.csv' 的输入目录。")
+    parser.add_argument("--batch_size", type=int, default=1, help="评估时的批处理大小。")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    print(f"使用设备: {device}")
 
     score_dict = {
         "aesthetic": 1.0,
@@ -158,62 +142,41 @@ def main():
     
     scoring_fn = multi_score(device, score_dict)
     
-    output_csv_path = os.path.join(args.base_dir, 'mean_evaluation_summary.csv')
-    processed_directories = set()
+    output_csv_path = os.path.join(args.input_dir, 'evaluation_results.csv')
 
-    # ✅ MODIFICATION: Read existing CSV to find already processed directories
-    file_exists = os.path.exists(output_csv_path)
-    if file_exists:
-        try:
-            with open(output_csv_path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    if 'directory' in row:
-                        processed_directories.add(row['directory'])
-            print(f"Found {len(processed_directories)} previously evaluated directories in {output_csv_path}.")
-        except (IOError, csv.Error) as e:
-            print(f"Warning: Could not read existing summary file. Will start fresh. Error: {e}")
-            processed_directories.clear()
-
-
-    newly_evaluated_results = []
-
-    # Sort entries to ensure consistent order
-    for entry in sorted(os.scandir(args.base_dir), key=lambda e: e.name):
-        if entry.is_dir() and entry.name.startswith("scale_"):
-            
-            # ✅ MODIFICATION: Skip if directory is already in the CSV
-            if entry.name in processed_directories:
-                print(f"Skipping '{entry.name}' as it's already in the summary CSV.")
-                continue
-
-            mean_scores = evaluate_directory(entry.path, scoring_fn, args.batch_size)
-            
-            if mean_scores:
-                result_row = {'directory': entry.name}
-                result_row.update(mean_scores)
-                newly_evaluated_results.append(result_row)
-
-    if not newly_evaluated_results:
-        print("\nNo new directories to evaluate or save. Exiting.")
+    all_image_results = evaluate_images_in_directory(args.input_dir, scoring_fn, args.batch_size)
+    
+    if not all_image_results:
+        print("\n没有评估结果可供保存。程序退出。")
         return
 
-    print(f"\nSaving {len(newly_evaluated_results)} new results to {output_csv_path}...")
+    print(f"\n正在将 {len(all_image_results)} 条详细结果保存到 {output_csv_path}...")
     
-    # Dynamically create fieldnames from the first new result
-    fieldnames = ['directory'] + list(newly_evaluated_results[0].keys())[1:]
+    fieldnames = list(all_image_results[0].keys())
 
-    # ✅ MODIFICATION: Open in append mode ('a')
-    with open(output_csv_path, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        
-        # Write header only if the file is new
-        if not file_exists or os.path.getsize(output_csv_path) == 0:
+    try:
+        with open(output_csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            
-        writer.writerows(newly_evaluated_results)
-        
-    print("✅ Done. Summary CSV updated successfully.")
+            writer.writerows(all_image_results)
+        print(f"✅ 详细评估结果已成功保存到 {output_csv_path}")
+    except IOError as e:
+        print(f"错误: 无法写入文件 {output_csv_path}。错误信息: {e}")
+
+    # ✅ 新增: 计算并打印平均分
+    print("\n--- 平均分统计 ---")
+    score_keys = [key for key in fieldnames if key.endswith('_score')]
+    num_images = len(all_image_results)
+
+    for key in score_keys:
+        total_score = sum(result[key] for result in all_image_results)
+        mean_score = total_score / num_images
+        # 清理名称用于打印 (例如 'aesthetic_score' -> 'Aesthetic')
+        clean_name = key.replace('_score', '').capitalize()
+        print(f"平均 {clean_name} 分数: {mean_score:.4f}")
+
+    print("\n✅ 完成。")
+
 
 if __name__ == "__main__":
     main()

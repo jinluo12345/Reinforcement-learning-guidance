@@ -41,7 +41,8 @@ setup(
         "huggingface-hub==0.29.1",  
         "datasets==3.3.2",
         "tokenizers==0.19.1",
-        
+        "image-reward==1.5",
+        "git+https://github.com/openai/CLIP.git", 
         "einops==0.8.1",
         "nvidia-ml-py==12.570.86",
         "xformers",

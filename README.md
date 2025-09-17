@@ -1,6 +1,6 @@
 <h1 align="center"> RLG:<br>Inference-Time Alignment Control for Diffusion Models with Reinforcement Learning Guidance </h1>
 <div align="center">
-  <a href='https://arxiv.org/abs/2508.21016'><img src='https://img.shields.io/badge/ArXiv-red?logo=arxiv'></a>  &nbsp;
+  <!-- <a href='https://arxiv.org/abs/2508.21016'><img src='https://img.shields.io/badge/ArXiv-red?logo=arxiv'></a>  &nbsp; -->
   <!-- <a href='https://gongyeliu.github.io/Flow-GRPO/'><img src='https://img.shields.io/badge/Visualization-green?logo=github'></a> &nbsp; -->
   <a href="https://github.com/jinluo12345/Reinforcement-learning-guidance"><img src="https://img.shields.io/badge/Code-9E95B7?logo=github"></a> &nbsp; 
   <!-- <a href='https://huggingface.co/collections/jieliu/sd35m-flowgrpo-68298ec27a27af64b0654120'><img src='https://img.shields.io/badge/Model-blue?logo=huggingface'></a> &nbsp; 

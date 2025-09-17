@@ -140,7 +140,7 @@ score_dict = {
 ## 🤗 Acknowledgement
 This repo is based on [Flow-GRPO](https://github.com/yifan123/flow_grpo). We thank the authors for their valuable contributions to the AIGC community. Special thanks to Liu Jie for the excellent *flow_grpo* repo.
 
-## ⭐Citation
+<!-- ## ⭐Citation
 If you find RLG useful for your research or projects, we would greatly appreciate it if you could cite the following paper:
 ```
 @misc{jin2025inferencetimealignmentcontroldiffusion,
@@ -152,4 +152,4 @@ If you find RLG useful for your research or projects, we would greatly appreciat
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2508.21016}, 
 }
-```
+``` -->
